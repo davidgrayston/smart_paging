@@ -1,0 +1,8 @@
+; $Id$
+name = Smart Paging
+description = Provides long Drupal content splitting up into sub pages.
+core = 7.x
+files[] = smart_paging.install
+files[] = smart_paging.module
+files[] = includes/smart_paging.admin.inc
+configure = admin/config/content/smart_paging
