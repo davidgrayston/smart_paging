@@ -24,7 +24,7 @@ function smart_paging_admin_settings($form, &$form_state) {
   $form['smart_paging_defaults'] = array(
     '#type'        => 'fieldset',
     '#title'       => t('Default values'),
-    '#description' => t('The selected values will be the initial values for all !smart_paging enabled entities. However, these values can be customized during content editing.', array('!smart_paging' => l('Smart Paging input filter', 'admin/config/content/formats'))),
+    '#description' => t('The selected values will be the initial values for all !smart_paging enabled entities. However, these values can be customized during content editing.', array('!smart_paging' => l(t('Smart Paging input filter'), 'admin/config/content/formats'))),
     '#collapsible' => FALSE,
     '#collapsed'   => FALSE,
   );
