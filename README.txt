@@ -55,9 +55,9 @@ Drupal 7.x
 
 Installation:
 1. Copy the extracted smart_paging directory to your Drupal sites/all/modules directory.
-2. Login as an administrator. Enable the module at the http://www.example.com/admin/modules
-3. Configure Smart Paging at http://www.example.com/admin/config/content/smart_paging
-4. Enable Smart Paging input filter at http://www.example.com/admin/config/content/formats
+2. Login as an administrator. Enable the module at the http://www.example.com/?q=admin/modules
+3. Configure Smart Paging at http://www.example.com/?q=admin/config/content/smart_paging
+4. Enable Smart Paging input filter at http://www.example.com/?q=admin/config/content/formats
 
 Support:
 Please use the issue queue for filing bugs with this module at
