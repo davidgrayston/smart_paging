@@ -641,7 +641,55 @@ function _filter_smart_paging_tips($filter, $format, $long = FALSE) {
 function smart_paging_help($path, $arg) {
   switch ($path) {
     case 'admin/help#smart_paging':
-      return t('Provides long Drupal content splitting up into sub pages.');
+      return '<p>' . 
+      t('Provides splitting up long Drupal content into sub pages by number of characters/words or by 
+      a placeholder HTML tag. It splits complex HTML markup content more accurately:') . 
+      '</p><div class="messages"><pre>
+&lt;div class="text-important"&gt;
+  &lt;p class="info"&gt;
+  Long content paragraph... 
+&lt;!--pagebreak--&gt;
+  Continuation of long content paragraph.
+  &lt;/p&gt;
+  &lt;ul class="text-note"&gt;
+    &lt;li&gt;List #1&lt;/li&gt;
+    &lt;li&gt;Long list #2...
+ &lt;!--pagebreak--&gt;
+    Continuation of long list #2&lt;/li&gt;
+    &lt;li&gt;List #3&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</pre></div>
+      <p>into this...</p>
+      <p>' . t(' - Page 1 - ') . '<br />
+      http://www.example.com/node/1/page/0/0</p><div class="messages"><pre>
+&lt;div class="text-important"&gt;
+  &lt;p class="info"&gt;
+  Long content paragraph... 
+  &lt;/p&gt;
+&lt;/div&gt;</pre></div>
+      <p>' . t(' - Page 2 - ') . '<br />
+      http://www.example.com/node/1/page/0/1</p><div class="messages"><pre>
+&lt;div class="text-important"&gt;
+  &lt;p class="info"&gt;
+  Continuation of long content paragraph.
+  &lt;/p&gt;
+  &lt;ul class="text-note"&gt;
+    &lt;li&gt;List #1&lt;/li&gt;
+    &lt;li&gt;Long list #2...&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</pre></div> 
+      <p>' . t(' - Page 3 - ') . '<br />
+      http://www.example.com/node/1/page/0/2</p><div class="messages"><pre>
+&lt;div class="text-important"&gt;
+  &lt;ul class="text-note"&gt;
+    &lt;li&gt;Continuation of long list #2&lt;/li&gt;
+    &lt;li&gt;List #3&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</pre></div><p>' . 
+      t('Smart Paging feature can be applied only to CCK fields (with text format) of node, user and 
+      taxonomy term entities. URL for sub pages made more SEO friendly and works even for aliased 
+      URL path. The user has more control over Smart Paging configuration, each content has its 
+      own Smart Paging settings.') . '</p>';
       break;
   }
 }
