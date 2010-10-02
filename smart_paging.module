@@ -370,9 +370,11 @@ function smart_paging_url_outbound_alter(&$path, &$options, $original_path) {
       }
     }
     $page_query = explode(',', $options['query']['page']);
-    $sub_page = $page_query[0];
-    $page  = isset($page_query[1]) ? $page_query[1] : '0';
-    $path .= '/' . variable_get('smart_paging_path_prefix', 'page') . "/$sub_page/$page";
+    if (isset($page_query[1]) && $page_query[1] != 0) {
+      $sub_page = $page_query[0];
+      $page  = isset($page_query[1]) ? $page_query[1] : '0';
+      $path .= '/' . variable_get('smart_paging_path_prefix', 'page') . "/$sub_page/$page";
+    }
     unset($options['query']['page']);
   }
 }
