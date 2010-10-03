@@ -2,7 +2,12 @@ $Id$
 
 Description:
 Provides splitting up long Drupal content into sub pages by number of characters/words or by 
-a placeholder HTML tag. It splits complex HTML markup content more accurately:
+a placeholder HTML tag. Smart Paging feature can be applied only to CCK fields (with text format) 
+of node, user and taxonomy term entities. URL for sub pages made more SEO friendly and works even 
+for aliased URL path. The user has more control over Smart Paging configuration, each content has 
+its own Smart Paging settings.
+
+It splits complex HTML markup content more accurately:
 
 <div class="text-important">
   <p class="info">
@@ -44,11 +49,6 @@ a placeholder HTML tag. It splits complex HTML markup content more accurately:
   </ul>
 </div>
 ------------Page 3------------
-
-Smart Paging feature can be applied only to CCK fields (with text format) of node, user and 
-taxonomy term entities. URL for sub pages made more SEO friendly and works even for aliased 
-URL path. The user has more control over Smart Paging configuration, each content has its 
-own Smart Paging settings.
 
 Requirements:
 Drupal 7.x

@@ -645,7 +645,11 @@ function smart_paging_help($path, $arg) {
     case 'admin/help#smart_paging':
       return '<p>' . 
       t('Provides splitting up long Drupal content into sub pages by number of characters/words or by 
-      a placeholder HTML tag. It splits complex HTML markup content more accurately:') . 
+      a placeholder HTML tag. Smart Paging feature can be applied only to CCK fields (with text format) of node, user and 
+      taxonomy term entities. URL for sub pages made more SEO friendly and works even for aliased 
+      URL path. The user has more control over Smart Paging configuration, each content has its 
+      own Smart Paging settings.') . '</p><p>' . 
+      t('It splits complex HTML markup content more accurately:') . 
       '</p><div class="messages"><pre>
 &lt;div class="text-important"&gt;
   &lt;p class="info"&gt;
@@ -663,7 +667,7 @@ function smart_paging_help($path, $arg) {
 &lt;/div&gt;</pre></div>
       <p>into this...</p>
       <p>' . t(' - Page 1 - ') . '<br />
-      http://www.example.com/node/1/page/0/0</p><div class="messages"><pre>
+      http://www.example.com/node/1</p><div class="messages"><pre>
 &lt;div class="text-important"&gt;
   &lt;p class="info"&gt;
   Long content paragraph... 
@@ -687,11 +691,7 @@ function smart_paging_help($path, $arg) {
     &lt;li&gt;Continuation of long list #2&lt;/li&gt;
     &lt;li&gt;List #3&lt;/li&gt;
   &lt;/ul&gt;
-&lt;/div&gt;</pre></div><p>' . 
-      t('Smart Paging feature can be applied only to CCK fields (with text format) of node, user and 
-      taxonomy term entities. URL for sub pages made more SEO friendly and works even for aliased 
-      URL path. The user has more control over Smart Paging configuration, each content has its 
-      own Smart Paging settings.') . '</p>';
+&lt;/div&gt;</pre></div>';
       break;
   }
 }
