@@ -61,3 +61,14 @@ function smart_paging_uninstall() {
   variable_del('smart_paging_character_count');
   variable_del('smart_paging_word_count');
 }
+
+/**
+ * Rename all 'name' field with 'filter_html' value to 'smart_paging_filter'
+ * where 'module' field have 'smart_paging' value
+ */
+function smart_paging_update_7000() {
+  db_update('filter')
+    ->fields(array('name' => 'smart_paging_filter'))
+    ->condition('module', 'smart_paging')
+    ->execute();
+}

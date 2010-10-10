@@ -47,9 +47,25 @@ function smart_paging_menu() {
 function smart_paging_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form_state['field']) && isset($form['#entity_type']) && (strpos($form_id, '_node_form') !== FALSE || $form_id == 'user_profile_form' || $form_id == 'taxonomy_form_term')) {
     foreach ($form_state['field'] as $field_name => $field) {
-      if ($field[$form[$field_name]['#language']]['instance']['settings']['text_processing']) {
-        $text_processing = TRUE;
-        break;
+      if (isset($form[$field_name]['#language'])) {
+        $lang = $form[$field_name]['#language'];
+        if (isset($field[$lang]['instance']['settings']['text_processing'])) {
+          foreach ($form[$field_name][$lang] as $delta => $properties) {
+            if (is_numeric($delta)) {
+              if (is_null($properties['#format'])) {
+                $text_processing = TRUE;
+                break;
+              }
+              else {
+                $filter_list = filter_list_format($properties['#format']);
+                if (isset($filter_list['smart_paging_filter'])) {
+                  $text_processing = TRUE;
+                  break;
+                }
+              }
+            }
+          }
+        }
       }
     }
     if (isset($text_processing)) {
@@ -106,8 +122,8 @@ function smart_paging_form_alter(&$form, &$form_state, $form_id) {
           '#attached' 	 => array(
             'js' => array(drupal_get_path('module', 'smart_paging') . '/js/smart_paging-admin.js'),
           ),
-          '#attributes'  => array('class' => array('smart-paging-settings')),
-          '#group'       => 'additional_settings',
+          '#attributes' => array('class' => array('smart-paging-settings')),
+          '#group'      => 'additional_settings',
         );
       }
       $form['smart_paging_settings']['smart_paging_use_default'] = array(
@@ -608,7 +624,7 @@ function smart_paging_permission() {
  * Implements hook_filter_info().
  */
 function smart_paging_filter_info() {
-  $filters['filter_html'] = array(
+  $filters['smart_paging_filter'] = array(
     'title'            => t('Smart Paging'),
     'process callback' => '_filter_smart_paging_process',
     'tips callback'    => '_filter_smart_paging_tips',
