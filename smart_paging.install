@@ -20,9 +20,8 @@ function smart_paging_schema() {
 				'description' => 'An entity type refer to table {field_config_entity_type}.type.',
 			),
       'configuration' => array(
-        'type'        => 'text',
-        'size'        => 'big',
-        'not null'    => TRUE,
+        'type'        => 'blob',
+        'not null'    => FALSE,
         'description' => 'Customized settings of Smart Paging (serialized).',
       ),
     ),
@@ -64,11 +63,23 @@ function smart_paging_uninstall() {
 
 /**
  * Rename all 'name' field with 'filter_html' value to 'smart_paging_filter'
- * where 'module' field have 'smart_paging' value
+ * where 'module' field have 'smart_paging' value.
  */
 function smart_paging_update_7000() {
   db_update('filter')
     ->fields(array('name' => 'smart_paging_filter'))
     ->condition('module', 'smart_paging')
     ->execute();
+}
+
+/**
+ * Change type of configuration field from big text to blob.
+ */
+function smart_paging_update_7001() {
+  $spec = array(
+    'type'        => 'blob',
+    'not null'    => FALSE,
+    'description' => 'Customized settings of Smart Paging (serialized).',
+  );
+  db_change_field('smart_paging', 'configuration', 'configuration', $spec);
 }
