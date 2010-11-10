@@ -3,6 +3,7 @@
 (function ($) {
   Drupal.behaviors.smartPaging = {
     attach: function (context, settings) {
+      console.log(settings);
       $('fieldset.smart-paging-settings', context).drupalSetSummary(function (context) {
 				var values = new Array();
         var t = new Array();
