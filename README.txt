@@ -3,9 +3,11 @@ $Id$
 Description:
 Provides splitting up long Drupal content into sub pages by number of characters/words or by 
 a placeholder HTML tag. Smart Paging feature can be applied only to CCK fields (with text format) 
-of node, user and taxonomy term entities. URL for sub pages made more SEO friendly and works even 
-for aliased URL path. The user has more control over Smart Paging configuration, each content has 
-its own Smart Paging settings.
+of node, user and taxonomy term entities (Note: "Description" field of taxonomy term is not a CCK field). 
+URL for sub pages made more SEO friendly and works even for aliased URL path. The user has more control 
+over Smart Paging configuration. An option is provided at "Manage Display" page of an entity type whether 
+to control Smart Paging display behavior during content editing or at "Manage Display" page itself. Weight 
+and visibility of Smart Paging can also be controlled at "Manage Display" page of an entity type.
 
 It splits complex HTML markup content more accurately:
 
@@ -58,6 +60,9 @@ Installation:
 2. Login as an administrator. Enable the module at the http://www.example.com/?q=admin/modules
 3. Configure Smart Paging at http://www.example.com/?q=admin/config/content/smart_paging
 4. Enable Smart Paging input filter at http://www.example.com/?q=admin/config/content/formats
+5. Disable the "Convert line breaks into HTML (i.e. <br> and <p>)" input filter. In replace to 
+this input filter, enable the "Convert line breaks into HTML (i.e. <br> and <p>) for Smart 
+Paging compatibility"
 
 Support:
 Please use the issue queue for filing bugs with this module at

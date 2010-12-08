@@ -1,5 +1,9 @@
 <?php
 // $Id$
+/**
+ * @file
+ * Smart paging installation callback.
+ */
 
 /**
  * Implements hook_schema().
@@ -14,11 +18,11 @@ function smart_paging_schema() {
         'description' => 'The entity type ID this configuration is attached to.',
       ),
       'entity_type' => array(
-				'type' 				=> 'varchar',
-				'length' 			=> 128,
-				'not null' 		=> TRUE,
-				'description' => 'An entity type refer to table {field_config_entity_type}.type.',
-			),
+        'type'        => 'varchar',
+        'length'      => 128,
+        'not null'    => TRUE,
+        'description' => 'An entity type refer to table {field_config_entity_type}.type.',
+      ),
       'configuration' => array(
         'type'        => 'blob',
         'not null'    => FALSE,
@@ -37,12 +41,6 @@ function smart_paging_schema() {
  */
 function smart_paging_install() {
   module_load_include('module', 'smart_paging', 'smart_paging');
-  variable_set('smart_paging_path_prefix', 'page');
-  variable_set('smart_paging_title_suffix', t(': Page '));
-  variable_set('smart_paging_method', SMART_PAGING_PLACEHOLDER_METHOD);
-  variable_set('smart_paging_pagebreak', '<!--pagebreak-->');
-  variable_set('smart_paging_character_count', 3072);
-  variable_set('smart_paging_word_count', 512);
 }
 
 
@@ -54,11 +52,12 @@ function smart_paging_install() {
  */
 function smart_paging_uninstall() {
   variable_del('smart_paging_path_prefix');
-  variable_del('smart_paging_title_suffix');
+  variable_del('smart_paging_use_js_pager');
   variable_del('smart_paging_method');
   variable_del('smart_paging_pagebreak');
   variable_del('smart_paging_character_count');
   variable_del('smart_paging_word_count');
+  variable_del('smart_paging_title_suffix');
 }
 
 /**

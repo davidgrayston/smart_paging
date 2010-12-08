@@ -1,11 +1,10 @@
 // $Id$
 
 (function ($) {
-  Drupal.behaviors.smartPaging = {
+  Drupal.behaviors.smartPagingAdmin = {
     attach: function (context, settings) {
-      console.log(settings);
       $('fieldset.smart-paging-settings', context).drupalSetSummary(function (context) {
-				var values = new Array();
+        var values = new Array();
         var t = new Array();
         var perm = new Array();
         if ($(':input[name="smart_paging_use_default"]', context).attr('checked')) {
@@ -34,8 +33,8 @@
           values.push(Drupal.t('Title suffix="@value"', t));
         }
         
-				return values.join(', ');
-			});
+        return values.join(', ');
+      });
       if ($(':input[name="smart_paging_pagebreak"]').attr('class').indexOf('error') != -1) {
         $(':input[name="smart_paging_pagebreak"]').parent().show();
       }
