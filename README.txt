@@ -1,4 +1,3 @@
-$Id$
 
 Description:
 Provides splitting up long Drupal content into sub pages by number of characters/words or by 

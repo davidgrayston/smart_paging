@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Smart paging installation callback.

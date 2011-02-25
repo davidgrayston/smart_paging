@@ -1,12 +1,10 @@
 <?php
-// $Id$
 
 /**
  * @file
  * Provides smart paging capability to Drupal contents.
  *
  * @author Roland Michael dela Peña.
- * @version $Id$
  */
 
 define('SMART_PAGING_NO_METHOD', -1);
