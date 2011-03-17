@@ -1,4 +1,5 @@
 <?php
+// $Id: smart_paging.admin.inc,v 1.1.2.2 2010/12/08 22:42:42 arpeggio Exp $
 
 /**
  * @file
