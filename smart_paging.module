@@ -749,8 +749,8 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
       $variables['element']  = $pager_element;
       $variables['quantity'] = 10;
       $build['smart_paging']['#markup'] = '<div class="smart-paging-pager">' . theme('pager', $variables) . '</div>';
-      $build['smart_paging']['#weight'] = $display_settings['weight'];
-      $build['smart_paging']['#access'] = $display_settings['visible'];
+      $build['smart_paging']['#weight'] = isset($display_settings['weight']) ? $display_settings['weight'] : 0;
+      $build['smart_paging']['#access'] = isset($display_settings['visible']) ? $display_settings['visible'] : FALSE;
     }
   }
   // Comment entity
