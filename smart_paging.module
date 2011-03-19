@@ -91,7 +91,7 @@ function smart_paging_form_alter(&$form, &$form_state, $form_id) {
       );
       $form['fields']['smart_paging']['#attributes']['class'][] = 'field-formatter-settings-editing';
     }
-    else {
+    elseif (isset($form['#entity_type']) && $form['#entity_type'] != 'comment') {
       $form['fields']['smart_paging']['settings_summary'] = array(
         '#markup' => '<div class="field-formatter-summary">' . smart_paging_field_formatter_settings_summary($form, $summary) . '</div>',
         '#cell_attributes' => array('class' => array('field-formatter-summary-cell')),
