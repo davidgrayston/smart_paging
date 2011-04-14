@@ -663,9 +663,11 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
                 }
               }
             }
-
-            // Remove all line break/new line
-            $markup_content = preg_replace('/[\n\r]*/', '', $markup_content);
+            // Remove all line break/new line near the closing tag. Eg. Change from <[html tag]/>\n\r<[html tag]> to <[html tag]/><[html tag]>
+            preg_match_all('#<[A-Za-z/ ]+>#', $markup_content, $matched_tags);
+            foreach ($matched_tags[0] as $matched_tag) {
+              $markup_content = preg_replace('#' . $matched_tag . '[\n\r]*#', $matched_tag, $markup_content);
+            }
             do {
               // Look for consecutive placeholder and closing tag. Eg. <!--pagebreak--></p>
               preg_match_all("#($placeholder)([ \t]*)(</[a-zA-Z]+>)#", $markup_content, $match);
@@ -750,7 +752,7 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
       $variables['quantity'] = 10;
       $build['smart_paging']['#markup'] = '<div class="smart-paging-pager">' . theme('pager', $variables) . '</div>';
       $build['smart_paging']['#weight'] = isset($display_settings['weight']) ? $display_settings['weight'] : 0;
-      $build['smart_paging']['#access'] = isset($display_settings['visible']) ? $display_settings['visible'] : FALSE;
+      $build['smart_paging']['#access'] = isset($display_settings['visible']) ? $display_settings['visible'] : TRUE;
     }
   }
   // Comment entity
