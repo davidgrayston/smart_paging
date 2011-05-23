@@ -670,10 +670,12 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
             }
             do {
               // Look for consecutive placeholder and closing tag. Eg. <!--pagebreak--></p>
-              preg_match_all("#($placeholder)([ \t]*)(</[a-zA-Z]+>)#", $markup_content, $match);
+              $placeholder_regex = preg_quote($placeholder, '#');
+              preg_match_all("#($placeholder_regex)([ \t]*)(</[a-zA-Z]+>)#", $markup_content, $match);
               if (isset($match[1][0]) && isset($match[3][0])) {
                 // Move the placeholder to the end of closing tag. From the above example </p><!--pagebreak-->
-                $markup_content = preg_replace('#' . $match[1][0] . (isset($match[2][0]) ? $match[2][0] : '') . $match[3][0] . '#', (isset($match[2][0]) ? $match[2][0] : '') . $match[3][0] . $match[1][0], $markup_content);
+                $match_regex = preg_quote($match[1][0] . (isset($match[2][0]) ? $match[2][0] : '') . $match[3][0], '#');
+                $markup_content = preg_replace("#$match_regex#", (isset($match[2][0]) ? $match[2][0] : '') . $match[3][0] . $match[1][0], $markup_content);
               }
             } while (!empty($match[0]) && !empty($match[1]) && !empty($match[2]) && !empty($match[3]));
             // Break HTML content properly and insert placeholder
@@ -1088,7 +1090,10 @@ function smart_paging_help($path, $arg) {
  * @return
  *   HTML output of properly break HTML content and insert placeholder.
  */
-function smart_page_break_insert_placeholder($text, $placeholder = '<!--pagebreak-->') {
+function smart_page_break_insert_placeholder($text, $placeholder = NULL) {
+  if (empty($placeholder)) {
+    $placeholder = variable_get('smart_paging_pagebreak', '<!--pagebreak-->');
+  }
   // Perform HTML correction
   $text = _filter_htmlcorrector($text);
   $break_map = array();
