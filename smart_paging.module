@@ -666,7 +666,8 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
             // Remove all line break/new line near the closing tag. Eg. Change from <[html tag]/>\n\r<[html tag]> to <[html tag]/><[html tag]>
             preg_match_all('#<[A-Za-z/ ]+>#', $markup_content, $matched_tags);
             foreach ($matched_tags[0] as $matched_tag) {
-              $markup_content = preg_replace('#' . $matched_tag . '[\n\r]*#', $matched_tag, $markup_content);
+              $matched_tag_regex = preg_quote($matched_tag, '#');
+              $markup_content    = preg_replace('#' . $matched_tag_regex . '[\n\r]*#', $matched_tag, $markup_content);
             }
             do {
               // Look for consecutive placeholder and closing tag. Eg. <!--pagebreak--></p>
@@ -1221,4 +1222,16 @@ function smart_paging_get_content_configuration($entity_type, $entity_id) {
     }
   }
   return $config;
+}
+
+/**
+ * Implements hook_paging_wysiwyg_include_directory().
+ */
+function smart_paging_wysiwyg_include_directory($type) {
+  switch ($type) {
+    case 'plugins':
+      // You can just return $type, if you place your Wysiwyg plugins into a
+      // sub-directory named 'plugins'.
+      return 'plugins/wysiwyg';
+  }
 }
