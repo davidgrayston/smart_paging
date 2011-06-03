@@ -61,6 +61,7 @@ function smart_paging_form_alter(&$form, &$form_state, $form_id) {
     );
     $summary = isset($form_state['formatter_settings']['smart_paging']) ? $form_state['formatter_settings']['smart_paging'] : NULL;
     if ($form_state['formatter_settings_edit'] == 'smart_paging') {
+      $form['fields']['smart_paging']['#region_callback'] = 'field_ui_display_overview_row_region';
       $form['fields']['smart_paging']['format']['#cell_attributes'] = array('colspan' => 3);
       $form['fields']['smart_paging']['format']['settings_edit_form'] = array(
         '#type'       => 'container',
@@ -92,6 +93,7 @@ function smart_paging_form_alter(&$form, &$form_state, $form_id) {
       $form['fields']['smart_paging']['#attributes']['class'][] = 'field-formatter-settings-editing';
     }
     elseif (isset($form['#entity_type']) && $form['#entity_type'] != 'comment') {
+      $form['fields']['smart_paging']['#region_callback'] = 'field_ui_display_overview_row_region';
       $form['fields']['smart_paging']['settings_summary'] = array(
         '#markup' => '<div class="field-formatter-summary">' . smart_paging_field_formatter_settings_summary($form, $summary) . '</div>',
         '#cell_attributes' => array('class' => array('field-formatter-summary-cell')),
@@ -679,6 +681,7 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
                 $markup_content = preg_replace("#$match_regex#", (isset($match[2][0]) ? $match[2][0] : '') . $match[3][0] . $match[1][0], $markup_content);
               }
             } while (!empty($match[0]) && !empty($match[1]) && !empty($match[2]) && !empty($match[3]));
+dsm($markup_content);
             // Break HTML content properly and insert placeholder
             $markup_content = smart_page_break_insert_placeholder($markup_content);
             // Check if last page is an empty tag
