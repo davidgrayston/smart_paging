@@ -681,7 +681,6 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
                 $markup_content = preg_replace("#$match_regex#", (isset($match[2][0]) ? $match[2][0] : '') . $match[3][0] . $match[1][0], $markup_content);
               }
             } while (!empty($match[0]) && !empty($match[1]) && !empty($match[2]) && !empty($match[3]));
-dsm($markup_content);
             // Break HTML content properly and insert placeholder
             $markup_content = smart_page_break_insert_placeholder($markup_content);
             // Check if last page is an empty tag
