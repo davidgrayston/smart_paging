@@ -51,6 +51,7 @@ function smart_paging_install() {
  * database by this module.
  */
 function smart_paging_uninstall() {
+  variable_del('smart_paging_title_display_suffix');
   variable_del('smart_paging_path_prefix');
   variable_del('smart_paging_use_js_pager');
   variable_del('smart_paging_method');

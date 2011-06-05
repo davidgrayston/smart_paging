@@ -29,8 +29,13 @@
             }
           }
           values.push(Drupal.t('!method@value', t));
-          t['@value'] = $(':input[name="smart_paging_title_suffix"]').attr('value');
-          values.push(Drupal.t('Title suffix="@value"', t));
+          if ($(':input[name="smart_paging_title_display_suffix"]').attr('checked')) {
+            t['@value'] = $(':input[name="smart_paging_title_suffix"]').attr('value');
+            values.push(Drupal.t('Title suffix="@value"', t));
+          }
+          else {
+            values.push(Drupal.t('No title suffix', t));
+          }
         }
         
         return values.join(', ');

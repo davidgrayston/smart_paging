@@ -60,12 +60,23 @@ function smart_paging_admin_settings($form, &$form_state) {
     '#default_value' => variable_get('smart_paging_word_count', SMART_PAGING_MAX_WORD_LIMIT),
     '#size'          => 50,
   );
+  $form['smart_paging_defaults']['smart_paging_title_display_suffix'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('Display content title suffix'),
+    '#description'   => t("Unchecking this option will stop display of content title suffix on web pages"),
+    '#default_value' => variable_get('smart_paging_title_display_suffix', TRUE),
+  );
   $form['smart_paging_defaults']['smart_paging_title_suffix'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Content title suffix'),
     '#description'   => t("Text that will appear next to content's sub pages title (default is %suffix), eg. Title%suffix 2, Title%suffix 3 and so on...", array('%suffix' => t(': Page '))),
     '#default_value' => variable_get('smart_paging_title_suffix', ': Page '),
     '#size'          => 50,
+    '#states'        => array(
+      'visible' => array(
+        ':input[name="smart_paging_title_display_suffix"]' => array('checked' => TRUE),
+      ),
+    ),
   );
   $form['#validate'][] = 'smart_paging_admin_settings_validate';
   return system_settings_form($form);
