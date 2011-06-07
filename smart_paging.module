@@ -575,8 +575,12 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
       }
     }
     ksort($fields);
+    $pageable_field_types = array('text', 'text_with_summary');
     foreach ($fields as $field) {
       $field_name = key($field);
+      if (!in_array($build[$field_name]['#field_type'], $pageable_field_types)) {
+        continue;
+      }
       $is_label_hidden = TRUE;
       foreach ($build[$field_name] as $delta => $field_content) {
         if (is_numeric($delta) && isset($field_content['#markup'])) {
