@@ -899,7 +899,7 @@ function smart_paging_field_extra_fields($get_defaults = FALSE) {
           'smart_paging_pagebreak'            => '<!--pagebreak-->',
           'smart_paging_character_count'      => SMART_PAGING_MAX_CHAR_LIMIT,
           'smart_paging_word_count'           => SMART_PAGING_MAX_WORD_LIMIT,
-          'smart_paging_display_title_suffix' => TRUE,
+          'smart_paging_title_display_suffix' => TRUE,
           'smart_paging_title_suffix'         => ': Page ',
         ),
       ),
