@@ -763,10 +763,12 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
     }
     if (!empty($total_page)) {
       if (variable_get('smart_paging_use_js_pager', TRUE)) {
+        global $base_url;
         drupal_add_js(drupal_get_path('module', 'smart_paging') . '/js/smart_paging-pager.js');
         drupal_add_js(array('smart_paging' => array(
           'first_element' => empty($pager_page_array[0]) ? 0 : $pager_page_array[0],
           'current_page'  => $current_page,
+          'base_url'      => $base_url,
           'current_url'   => drupal_get_path_alias($_GET['q']),
           'path_prefix'   => variable_get('smart_paging_path_prefix', 'page'),
           'clean_url'     => variable_get('clean_url', 0),
