@@ -538,6 +538,8 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
   // Teaser view and comment entity type (it has its own pagination) are not included
   if ($context['entity_type'] != 'comment' && $context['view_mode'] == 'full') {
     global $pager_page_array, $pager_total;
+    $suffix;
+    $display_suffix;
     $total_page   = 0;
     $output_index = 0;
     $current_page = 0;
@@ -611,10 +613,6 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
               $max_words = $smart_paging_use_default ? variable_get('smart_paging_word_count', SMART_PAGING_MAX_WORD_LIMIT) : $smart_paging_config['word_count'];
             }
             $markup_content = $field_content['#markup'];
-            if ($display_suffix && $current_page > 0) {
-              $title_suffix = drupal_get_title() . t('@page', array('@page' => $suffix . ($current_page + 1)));
-              drupal_set_title($title_suffix);
-            }
           }
           // Check first if Smart Paging is allowed as input filter
           if ($is_smart_paging_filter_found !== FALSE) {
@@ -775,6 +773,13 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
         )), 'setting');
       }
       $pager_total[$pager_element] = $total_page;
+      if ($display_suffix && $current_page > 0) {
+        $title_suffix = theme('smart_paging_page_title_suffix', array('page' => array(
+          'suffix'       => $suffix,
+          'current_page' => $current_page,
+          'total_page'   => $total_page,
+        )));
+      }
       $variables['tags']     = array();
       $variables['element']  = $pager_element;
       $variables['quantity'] = 10;
@@ -1055,6 +1060,53 @@ function smart_paging_field_formatter_settings_summary($build, $summary = NULL) 
   return implode('<br />', $summary);
 }
 
+/**
+ * Implements hook_theme().
+ */
+function smart_paging_theme($existing, $type, $theme, $path) {
+  return array(
+    'smart_paging_page_title_suffix' => array(
+      'render element' => 'page',
+    ),
+  );
+}
+
+/**
+ * Default theme for smart_paging_page_title_suffix.
+ */
+function theme_smart_paging_page_title_suffix($variable) {
+  static $title_suffix;
+  static $set_title_done;
+  if (isset($variable['page'])) {
+    $page = $variable['page'];
+    if (isset($page['suffix']) && isset($page['current_page']) && isset($page['total_page'])) {
+      $title_suffix = $page['suffix'] . ($page['current_page'] + 1) . t(' of ') . $page['total_page'];
+      // $variable['bypass_drupal_set_title'] can be set at:
+      // THEME_preprocess_smart_paging_page_title_suffix()
+      // MODULE_preprocess_smart_paging_page_title_suffix()
+      if (!$set_title_done && !isset($variable['bypass_drupal_set_title'])) {
+        // Target head title (<title> tag)
+        drupal_set_title(drupal_get_title() . $title_suffix);
+        $set_title_done = TRUE;
+      }
+    }
+  }
+  return $title_suffix;
+}
+
+/**
+ * Implements MODULE_preprocess_page()
+ *
+ * Set the page title for the default theme only
+ * Variable $smart_paging_page_title_suffix will be available at page.tpl.php
+ */
+function smart_paging_preprocess_page(&$variables) {
+  global $theme;
+  if (variable_get('theme_default', '') == $theme) {
+    $variables['title'] = drupal_get_title();
+    $variables['smart_paging_page_title_suffix'] = theme('smart_paging_page_title_suffix');
+  }
+}
 
 /**
  * Implements hook_help().
