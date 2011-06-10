@@ -695,7 +695,7 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
             preg_match_all('#<[A-Za-z/ ]+>#', $markup_content, $matched_tags);
             foreach ($matched_tags[0] as $matched_tag) {
               $matched_tag_regex = preg_quote($matched_tag, '#');
-              $markup_content    = preg_replace('#' . $matched_tag_regex . '[\n\r]*#', $matched_tag, $markup_content);
+              $markup_content = preg_replace('#' . $matched_tag_regex . '[\n\r]*<#', "$matched_tag<", $markup_content);
             }
             do {
               // Look for consecutive placeholder and closing tag. Eg. <!--pagebreak--></p>
