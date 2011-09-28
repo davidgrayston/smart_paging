@@ -502,6 +502,13 @@ function smart_paging_url_inbound_alter(&$path, &$original_path, $path_language)
  */
 function smart_paging_url_outbound_alter(&$path, &$options, $original_path) {
   if (isset($options['query']['page'])) {
+    $url_fragment = smart_paging_get_url_fragment();
+    $page_query = explode(',', $options['query']['page']);
+    foreach ($url_fragment as $index => $fragment) {
+      if ($page_query[1] == $index) {
+        $options['fragment'] = $fragment;
+      }
+    }
     if (!empty($path) && !$options['alias']) {
       $language = isset($options['language']) && isset($options['language']->language) ? $options['language']->language : NULL;
       $alias = drupal_get_path_alias($original_path, $language);
@@ -515,7 +522,6 @@ function smart_paging_url_outbound_alter(&$path, &$options, $original_path) {
         $path = empty($path_arg) ? $original_path : implode('/', $path_arg);
       }
     }
-    $page_query = explode(',', $options['query']['page']);
     if (isset($page_query[1]) && $page_query[1] != 0) {
       $sub_page = $page_query[0];
       $page  = isset($page_query[1]) ? $page_query[1] : '0';
@@ -756,8 +762,36 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
             }
           }
         }
+        // Smart Paging as better SEO friendly targeting meta tags and URL (sub pages):
+        // Sample: <!--smartpagingmeta {"link_rel_canonical_href":"","meta_name_description_content":"Tips for breakfast facts and nutrition information","meta_name_keywords_content":"breakfast, breakfast nutrition, healthy, healthy eating habits"}-->
+        // Sample: <!--smartpagingurl "Breakfast-Facts-for-Nutrition"-->
+        if (is_array($build[$field_name][$delta]) && isset($build[$field_name][$delta]['#markup']) && isset($placeholder)) {
+          $content_break = explode($placeholder, $field_content['#markup']);
+          $custom_url_page = array();
+          foreach ($content_break as $page_num => $sub_page_content) {
+            preg_match_all('#<!--smartpagingurl [[:punct:][:alnum:][:space:]]*-->#', $sub_page_content, $matched_tags);
+            if (!empty($matched_tags[0])) {
+              $custom_url_page[$page_num] = preg_replace('#<!--smartpagingurl |-->|"|\'#', '', $matched_tags[0][0]);
+            }
+          }
+          smart_paging_get_url_fragment($custom_url_page);
+          $sub_content = $build[$field_name][$delta]['#markup'];
+          preg_match_all('#<!--smartpagingmeta [[:punct:][:alnum:][:space:]]*-->#', $sub_content, $matched_tags);
+          if (!empty($matched_tags[0])) {
+            $smart_paging_seo = preg_replace('#<!--smartpagingmeta |<!--smartpagingurl [[:punct:][:alnum:][:space:]]*-->|-->#', '', $matched_tags[0][0]);
+            drupal_add_html_head(array(
+              '#attributes' => array(
+                'name'		=> 'Smart_Paging',
+                'content' => $smart_paging_seo,
+              ),
+              '#tag' => 'meta'
+            ), 'smart_paging_seo');
+            drupal_get_html_head();
+          }
+        }
       }
     }
+    
     if (!empty($total_page)) {
       if (variable_get('smart_paging_use_js_pager', TRUE)) {
         global $base_url;
@@ -769,6 +803,7 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
           'current_url'   => drupal_get_path_alias($_GET['q']),
           'path_prefix'   => variable_get('smart_paging_path_prefix', 'page'),
           'clean_url'     => variable_get('clean_url', 0),
+          'custom_url_page' => $custom_url_page,
         )), 'setting');
       }
       $pager_total[$pager_element] = $total_page;
@@ -801,6 +836,59 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
             $build[$field_name][$delta]['#markup'] = $markup_content;
           }
         }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_html_head_alter().
+ * Smart Paging as better SEO friendly targeting meta tags
+ */
+function smart_paging_html_head_alter(&$head_elements) {
+  if (isset($head_elements['smart_paging_seo'])) {
+    $smart_paging_seo = json_decode($head_elements['smart_paging_seo']['#attributes']['content']);
+    $tags = array();
+    if (!empty($smart_paging_seo)) {
+      foreach ($smart_paging_seo as $tag => $tag_content) {
+        $target_tag = explode('_', $tag);
+        if (isset($target_tag[0]) && isset($target_tag[1]) && isset($target_tag[2]) && isset($target_tag[3])) {
+          $tags[$target_tag[2]] = array(
+            'attr_name' => $target_tag[1],
+            'tag' => $target_tag[0], 
+            'content_attr' => $target_tag[3],
+            'content' => $tag_content,
+          );
+        }
+      }
+    }
+    if (!empty($tags)) {
+      foreach ($head_elements as $head_element_key => $head_element) {
+        foreach ($tags as $target_name => $attr) {
+          if ($head_element['#tag'] == $attr['tag'] && (isset($head_element['#attributes'][$attr['attr_name']]) && $head_element['#attributes'][$attr['attr_name']] == $target_name)) {
+            if (!empty($attr['content'])) {
+              $head_elements[$head_element_key]['#attributes'][$attr['content_attr']] = $attr['content'];
+            }
+            else {
+              unset($head_elements[$head_element_key]);
+            }
+            unset($tags[$target_name]);
+          }
+        }
+      }
+    }
+    unset($head_elements['smart_paging_seo']);
+    if (!empty($tags)) {
+      foreach ($tags as $target_name => $attr) {
+        $head_elements["smart_paging_$target_name"] = array(	
+          '#type' => 'html_tag',
+          '#tag'  => $attr['tag'],
+          '#attributes'	=> array(
+            $attr['attr_name']    => $target_name,
+            $attr['content_attr'] => $attr['content'],			
+          ),
+        );
+        unset($tags[$target_name]);
       }
     }
   }
@@ -1316,6 +1404,17 @@ function smart_paging_get_content_configuration($entity_type, $entity_id) {
     }
   }
   return $config;
+}
+
+/**
+ * Helper function for grabbing Smart Paging fragment url for more SEO friendly.
+ */
+function smart_paging_get_url_fragment($url = NULL) {
+  $smart_paging_url = &drupal_static(__FUNCTION__);
+  if (!isset($smart_paging_url) || !empty($url)) {
+    $smart_paging_url = $url;
+  }
+  return $smart_paging_url;
 }
 
 /**

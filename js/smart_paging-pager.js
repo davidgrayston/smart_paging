@@ -3,6 +3,7 @@
 (function ($) {
   Drupal.behaviors.smartPagingPager = {
     attach: function (context, settings) {
+      var custom_url_page = settings.smart_paging.custom_url_page;
       var current_page  = settings.smart_paging.current_page;
       var first_element = settings.smart_paging.first_element;
       var path_prefix   = settings.smart_paging.path_prefix;
@@ -12,11 +13,14 @@
       var q_url      = settings.smart_paging.current_url.replace(/(^\/)|(\/$)/, '');
       var total_page = last_page == undefined ? current_page : last_page.replace(/^\/.*\//i, '');
       var js_box     = '<li><select class="smart-paging-pager-box">';
+      for (var index in custom_url_page) {
+        total_page = total_page.replace(('#' + custom_url_page[index]), '');
+      }
       if (!settings.smart_paging.clean_url) {
         q_url = '?q=' + q_url;
       }
       for (var i = 0; i <= total_page; ++i) {
-        var value = '/' + path_prefix + '/' + first_element + '/' + i;
+        var value = '/' + path_prefix + '/' + first_element + '/' + i + ((custom_url_page[i] == undefined) ? '' : ('#' + custom_url_page[i]));
         var selected = '';
         if (i == 0 && first_element == 0) {
           value = '';
