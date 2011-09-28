@@ -573,12 +573,11 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
     $fields = array();
     foreach (element_children($build) as $field_name) {
       if (isset($build[$field_name]['#weight'])) {
-        $fields[$build[$field_name]['#weight']][$field_name] = $build[$field_name];
+        $fields[$field_name] = $build[$field_name]['#weight'];
       }
     }
-    ksort($fields);
-    foreach ($fields as $field) {
-      $field_name = key($field);
+    asort($fields);
+    foreach (array_keys($fields) as $field_name) {
       foreach ($build[$field_name] as $delta => $field_content) {
         if (is_numeric($delta) && isset($field_content['#markup'])) {
           if (strpos($field_content['#markup'], '<!--smart_paging_autop_filter-->') !== FALSE) {
