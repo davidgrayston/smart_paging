@@ -483,7 +483,9 @@ function smart_paging_url_inbound_alter(&$path, &$original_path, $path_language)
       $alias = arg();
       unset($alias[$arg_count - 2], $alias[$arg_count - 1], $alias[$arg_count]);
       // Get the Drupal system URL for a path alias
-      $drupal_path = drupal_lookup_path('source', implode('/', $alias) , $path_language);
+      if (!($drupal_path = drupal_lookup_path('source', implode('/', $alias) , $path_language)) && function_exists("path_alias_xt_get_normal_path")) {
+        $drupal_path = path_alias_xt_get_normal_path(implode('/', $alias) , $path_language);
+      }
       if (!empty($drupal_path)) {
         // Alter inbound URL request
         $path = $drupal_path;
@@ -504,14 +506,21 @@ function smart_paging_url_outbound_alter(&$path, &$options, $original_path) {
   if (isset($options['query']['page'])) {
     $url_fragment = smart_paging_get_url_fragment();
     $page_query = explode(',', $options['query']['page']);
-    foreach ($url_fragment as $index => $fragment) {
-      if ($page_query[1] == $index) {
-        $options['fragment'] = $fragment;
+    if (!(empty($url_fragment)) && is_array($url_fragment)){
+      foreach ($url_fragment as $index => $fragment) {
+        if ($page_query[1] == $index) {
+          $options['fragment'] = $fragment;
+        }
       }
     }
     if (!empty($path) && !$options['alias']) {
       $language = isset($options['language']) && isset($options['language']->language) ? $options['language']->language : NULL;
-      $alias = drupal_get_path_alias($original_path, $language);
+      if (function_exists("path_alias_xt_get_path_alias")) {
+        $alias = path_alias_xt_get_path_alias($original_path, $language);
+      }
+      else {
+        $alias = drupal_get_path_alias($original_path, $language);
+      } 
       if ($alias != $original_path) {
         $path = $alias;
         $options['alias'] = TRUE;
@@ -800,7 +809,7 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
           'first_element' => empty($pager_page_array[0]) ? 0 : $pager_page_array[0],
           'current_page'  => $current_page,
           'base_url'      => $base_url,
-          'current_url'   => drupal_get_path_alias($_GET['q']),
+          'current_url'   => (function_exists("path_alias_xt_get_path_alias") ? path_alias_xt_get_path_alias($_GET['q']) : drupal_get_path_alias($_GET['q'])),
           'path_prefix'   => variable_get('smart_paging_path_prefix', 'page'),
           'clean_url'     => variable_get('clean_url', 0),
           'custom_url_page' => $custom_url_page,
