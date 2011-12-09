@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.1.2.3 2010/12/08 22:42:42 arpeggio Exp $
+﻿$Id: README.txt,v 1.1.2.3 2010/12/08 22:42:42 arpeggio Exp $
 
 Description:
 Provides splitting up long Drupal content into sub pages by number of characters/words or by 
