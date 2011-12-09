@@ -1182,7 +1182,7 @@ function theme_smart_paging_page_title_suffix($variable) {
       // MODULE_preprocess_smart_paging_page_title_suffix()
       if (!$set_title_done && !isset($variable['bypass_drupal_set_title'])) {
         // Target head title (<title> tag)
-        drupal_set_title(drupal_get_title() . $title_suffix);
+        drupal_set_title(drupal_get_title() . check_plain ($title_suffix), PASS_THROUGH);
         $set_title_done = TRUE;
       }
     }
