@@ -1,4 +1,4 @@
-﻿(function ($) {
+(function ($) {
 
 Drupal.wysiwyg.plugins['smart_paging'] = {
 

@@ -1,4 +1,4 @@
-﻿// $Id: smart_paging-admin.js,v 1.1.2.2 2010/12/08 22:42:42 arpeggio Exp $
+// $Id: smart_paging-admin.js,v 1.1.2.2 2010/12/08 22:42:42 arpeggio Exp $
 
 (function ($) {
   Drupal.behaviors.smartPagingAdmin = {
