@@ -726,7 +726,10 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
             // Check if last page is an empty tag
             $pagebreak = array_filter(explode($placeholder, $markup_content));
             $pagebreak_end = count($pagebreak) - 1;
-            $last_page = strip_tags($pagebreak[$pagebreak_end]);
+            $last_page = '';
+            if (isset($pagebreak[$pagebreak_end])) {
+              $last_page = strip_tags($pagebreak[$pagebreak_end]);
+            }
             if (empty($last_page)) {
               // Remove the last page with only an empty tag content
               unset($pagebreak[$pagebreak_end]);
