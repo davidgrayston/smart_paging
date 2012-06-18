@@ -11,14 +11,11 @@
         var first_page = $('.smart-paging-pager .pager-first a', context).attr('href');
         var last_page  = $('.smart-paging-pager .pager-last a', context).attr('href');
         var base_url   = settings.smart_paging.base_url;
-        var q_url      = settings.smart_paging.current_url.replace(/(^\/)|(\/$)/, '');
+        var current_url = settings.smart_paging.current_url;
         var total_page = last_page == undefined ? current_page : last_page.replace(/^\/.*\//i, '');
         var js_box     = '<li><select class="smart-paging-pager-box">';
         for (var index in custom_url_page) {
           total_page = total_page.replace(('#' + custom_url_page[index]), '');
-        }
-        if (!settings.smart_paging.clean_url) {
-          q_url = '?q=' + q_url;
         }
         for (var i = 0; i <= total_page; ++i) {
           var value = '/' + path_prefix + '/' + first_element + '/' + i + ((custom_url_page[i] == undefined) ? '' : ('#' + custom_url_page[i]));
@@ -32,7 +29,7 @@
           else {
             selected = '';
           }
-          js_box += '<option ' + selected + ' value="' + base_url + '/' + q_url + value + '">' + Drupal.t('Page: ') + (i + 1) + '</option>';
+          js_box += '<option ' + selected + ' value="' + base_url + '/' + current_url + value + '">' + Drupal.t('Page: ') + (i + 1) + '</option>';
         }
         js_box += '</select></li>';
         $('.smart-paging-pager .pager-item, .smart-paging-pager .pager-current, .smart-paging-pager .pager-ellipsis').remove();

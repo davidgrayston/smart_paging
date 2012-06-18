@@ -20,6 +20,12 @@ function smart_paging_admin_settings($form, &$form_state) {
     '#description'   => t('It is the paging prefix (default is "page") shown at URL when navigating Smart Paging enabled pages: %url', array('%url' => 'http://example.com/node/1/<URL paging prefix>/0/1')),
     '#size'          => 50,
   );
+  $form['smart_paging_use_link_rel'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('Pagination with rel="next" and rel="prev"'),
+    '#default_value' => variable_get('smart_paging_use_link_rel', TRUE),
+    '#description'   => t('This will remove the rel="canonical" link.'),
+  );
   $form['smart_paging_use_js_pager'] = array(
     '#type'          => 'checkbox',
     '#title'         => t('Use javascript pager as progressive enhancement for Drupal native pager'),
