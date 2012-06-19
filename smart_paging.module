@@ -836,19 +836,25 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
         else if ($current_page == $total_page_offset) {
           // We are on last page
           $link_rel_prev_page = $total_page_offset - 1;
-          $link_rel_prev_page = "$pager_prefix/$link_rel_prev_page";
+          if ($link_rel_prev_page) {
+            $link_rel_prev_page = "$pager_prefix/$link_rel_prev_page";
+          }
         }
         else {
           // We are on middle page
           $link_rel_next_page = $current_page + 1;
-          $link_rel_next_page = "$pager_prefix/$link_rel_next_page";
+          if ($link_rel_next_page) {
+            $link_rel_next_page = "$pager_prefix/$link_rel_next_page";
+          }
           $link_rel_prev_page = $current_page - 1;
-          $link_rel_prev_page = "$pager_prefix/$link_rel_prev_page";
+          if ($link_rel_prev_page) {
+            $link_rel_prev_page = "$pager_prefix/$link_rel_prev_page";
+          }
         }
         if (isset($link_rel_prev_page)) {
           drupal_add_html_head(array(
             '#attributes' => array(
-              'href' => "$base_url/$current_url/$link_rel_prev_page",
+              'href' => $link_rel_prev_page ? "$base_url/$current_url/$link_rel_prev_page" : "$base_url/$current_url",
               'rel'  => 'prev',
             ),
             '#tag' => 'link'
@@ -857,7 +863,7 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
         if (isset($link_rel_next_page)) {
           drupal_add_html_head(array(
             '#attributes' => array(
-              'href' => "$base_url/$current_url/$link_rel_next_page",
+              'href' => $link_rel_next_page ? "$base_url/$current_url/$link_rel_next_page" : "$base_url/$current_url",
               'rel'  => 'next',
             ),
             '#tag' => 'link'

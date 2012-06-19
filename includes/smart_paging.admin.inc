@@ -22,7 +22,7 @@ function smart_paging_admin_settings($form, &$form_state) {
   );
   $form['smart_paging_use_link_rel'] = array(
     '#type'          => 'checkbox',
-    '#title'         => t('Pagination with rel="next" and rel="prev"'),
+    '#title'         => t('Pagination with rel="next" and rel="prev" (!details)', array('!details' => l(t('more details'), 'http://googlewebmastercentral.blogspot.co.uk/2011/09/pagination-with-relnext-and-relprev.html'))),
     '#default_value' => variable_get('smart_paging_use_link_rel', TRUE),
     '#description'   => t('This will remove the rel="canonical" link.'),
   );
