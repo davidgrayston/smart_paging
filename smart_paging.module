@@ -960,7 +960,7 @@ function smart_paging_html_head_alter(&$head_elements) {
   if (isset($head_elements['smart_paging_link_rel_prev']) || isset($head_elements['smart_paging_link_rel_next'])) {
     // Remove rel="canonical" link
     foreach ($head_elements as $head_element_key => $head_element) {
-      if ($head_element['#tag'] == 'link' && $head_element['#attributes']['rel'] == 'canonical') {
+      if (isset($head_element['#tag']) && $head_element['#tag'] == 'link' && $head_element['#attributes']['rel'] == 'canonical') {
         unset($head_elements[$head_element_key]);
       }
     }
