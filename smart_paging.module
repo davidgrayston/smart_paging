@@ -900,6 +900,11 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
             $markup_content = str_replace(variable_get('smart_paging_pagebreak', '<!--pagebreak-->'), '', $markup_content);
             $build[$field_name][$delta]['#markup'] = $markup_content;
           }
+          if (isset($field_content['#markup']) && strpos($field_content['#markup'], '<!--smart_paging_autop_filter-->') !== FALSE) {
+            $markup_content = $build[$field_name][$delta]['#markup'];
+            $markup_content = str_replace('<!--smart_paging_autop_filter-->', '', $markup_content); 
+            $build[$field_name][$delta]['#markup'] = _filter_autop($markup_content);
+          }
         }
       }
     }
