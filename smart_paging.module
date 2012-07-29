@@ -822,7 +822,7 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
         'custom_url_page' => $custom_url_page,
       );
 
-      if (variable_get('smart_paging_use_js_pager', TRUE)) {
+      if (variable_get('smart_paging_use_js_pager', TRUE) && variable_get('smart_paging_enable_clean_url', TRUE)) {
         drupal_add_js(drupal_get_path('module', 'smart_paging') . '/js/smart_paging-pager.js');
         drupal_add_js(array('smart_paging' => $pager_details), 'setting');
       }
