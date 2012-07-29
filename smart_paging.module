@@ -471,27 +471,29 @@ function smart_paging_entity_insert($entity, $entity_type) {
  * Implements hook_url_inbound_alter().
  */
 function smart_paging_url_inbound_alter(&$path, &$original_path, $path_language) {
-  $arg_count = count(arg()) - 1;
-  $page      = arg($arg_count);
-  $sub_page  = arg($arg_count - 1);
-  // Check if path has pattern of http://example.com/<path alias>/<pager prefix>/<sub_page>/<page>
-  if ($arg_count > 2 && is_numeric($sub_page) && is_numeric($page)) {
-    if (arg($arg_count - 2) == variable_get('smart_paging_path_prefix', 'page')) {
-      // Set the 'page' value of GET method
-      $_GET['page'] = "$sub_page,$page";
-      // Extract alias from arg()
-      $alias = arg();
-      unset($alias[$arg_count - 2], $alias[$arg_count - 1], $alias[$arg_count]);
-      // Get the Drupal system URL for a path alias
-      if (!($drupal_path = drupal_lookup_path('source', implode('/', $alias) , $path_language)) && function_exists("path_alias_xt_get_normal_path")) {
-        $drupal_path = path_alias_xt_get_normal_path(implode('/', $alias) , $path_language);
-      }
-      if (!empty($drupal_path)) {
-        // Alter inbound URL request
-        $path = $drupal_path;
-      }
-      else {
-        $path = implode('/', $alias);
+  if (variable_get('smart_paging_enable_clean_url', TRUE)) {
+    $arg_count = count(arg()) - 1;
+    $page      = arg($arg_count);
+    $sub_page  = arg($arg_count - 1);
+    // Check if path has pattern of http://example.com/<path alias>/<pager prefix>/<sub_page>/<page>
+    if ($arg_count > 2 && is_numeric($sub_page) && is_numeric($page)) {
+      if (arg($arg_count - 2) == variable_get('smart_paging_path_prefix', 'page')) {
+        // Set the 'page' value of GET method
+        $_GET['page'] = "$sub_page,$page";
+        // Extract alias from arg()
+        $alias = arg();
+        unset($alias[$arg_count - 2], $alias[$arg_count - 1], $alias[$arg_count]);
+        // Get the Drupal system URL for a path alias
+        if (!($drupal_path = drupal_lookup_path('source', implode('/', $alias) , $path_language)) && function_exists("path_alias_xt_get_normal_path")) {
+          $drupal_path = path_alias_xt_get_normal_path(implode('/', $alias) , $path_language);
+        }
+        if (!empty($drupal_path)) {
+          // Alter inbound URL request
+          $path = $drupal_path;
+        }
+        else {
+          $path = implode('/', $alias);
+        }
       }
     }
   }
@@ -503,7 +505,7 @@ function smart_paging_url_inbound_alter(&$path, &$original_path, $path_language)
  * Change pagination query type URL to a clean URL
  */
 function smart_paging_url_outbound_alter(&$path, &$options, $original_path) {
-  if (isset($options['query']['page'])) {
+  if (isset($options['query']['page']) && variable_get('smart_paging_enable_clean_url', TRUE)) {
     $url_fragment = smart_paging_get_url_fragment();
     $page_query = explode(',', $options['query']['page']);
     if (!(empty($url_fragment)) && is_array($url_fragment)){
@@ -531,15 +533,16 @@ function smart_paging_url_outbound_alter(&$path, &$options, $original_path) {
         $path = empty($path_arg) ? $original_path : implode('/', $path_arg);
       }
     }
+    $path_prefix = variable_get('smart_paging_path_prefix', 'page');
     if (isset($page_query[1]) && $page_query[1] != 0) {
       $sub_page = $page_query[0];
       $page  = isset($page_query[1]) ? $page_query[1] : '0';
-      $path .= '/' . variable_get('smart_paging_path_prefix', 'page') . "/$sub_page/$page";
+      $path .= "/$path_prefix/$sub_page/$page";
     }
     else {
       $sub_page = $page_query[0];
       if ($sub_page) {
-        $path .= '/' . variable_get('smart_paging_path_prefix', 'page') . "/$sub_page/0";
+        $path .= "/$path_prefix/$sub_page/0";
       }
     }
     unset($options['query']['page']);
