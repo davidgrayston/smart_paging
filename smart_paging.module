@@ -745,10 +745,13 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
             }
            
             $markup_content = implode($placeholder, $pagebreak);
-            // Save the processed page break content to cache
-            $cached_field = cache_get("field:$entity_type:$entity_id", 'cache_field');
-            $cached_field->data[$field_name][$language][$delta]['safe_value'] = '<!--smart_paging_filter_done-->' . $markup_content;
-            cache_set("field:$entity_type:$entity_id", $cached_field->data, 'cache_field');
+            // Don't save to cache when node is in Preview mode
+            if (isset($context['entity']->op) && $context['entity']->op != 'Preview') {
+              // Save the processed page break content to cache
+              $cached_field = cache_get("field:$entity_type:$entity_id", 'cache_field');
+              $cached_field->data[$field_name][$language][$delta]['safe_value'] = '<!--smart_paging_filter_done-->' . $markup_content;
+              cache_set("field:$entity_type:$entity_id", $cached_field->data, 'cache_field');
+            }
             // Set the field content output
             $build[$field_name][$delta]['#markup'] = $markup_content;
           }
