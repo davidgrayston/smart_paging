@@ -32,7 +32,7 @@ define('SMART_PAGING_MAX_WORD_LIMIT', 512);
 function smart_paging_menu() {
   $items = array();
   $items['admin/config/content/smart_paging'] = array(
-    'title'            => 'Administer Smart Paging',
+    'title'            => 'Smart Paging',
     'description'      => 'Configure Smart Paging default settings',
     'access arguments' => array('administer smart_paging'),
     'page callback'    => 'drupal_get_form',
@@ -824,8 +824,8 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
         'path_prefix'   => variable_get('smart_paging_path_prefix', 'page'),
         'custom_url_page' => $custom_url_page,
       );
-
-      if (variable_get('smart_paging_use_js_pager', TRUE) && variable_get('smart_paging_enable_clean_url', TRUE)) {
+      $enable_clean_url = variable_get('smart_paging_enable_clean_url', TRUE);
+      if (variable_get('smart_paging_use_js_pager', TRUE) && $enable_clean_url) {
         drupal_add_js(drupal_get_path('module', 'smart_paging') . '/js/smart_paging-pager.js');
         drupal_add_js(array('smart_paging' => $pager_details), 'setting');
       }
@@ -834,7 +834,12 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
         // Pagination with rel="next" and rel="prev"
         // Ref: http://googlewebmastercentral.blogspot.co.uk/2011/09/pagination-with-relnext-and-relprev.html
         $total_page_offset = $total_page - 1;
-        $pager_prefix = $pager_details['path_prefix'] . '/' . $pager_details['first_element'];
+        if ($enable_clean_url) {
+          $pager_prefix = $pager_details['path_prefix'] . '/' . $pager_details['first_element'];
+        }
+        else {
+          $pager_prefix = 'page=' . $pager_details['first_element'];
+        }
         if ($current_page == 0) {
           // We are on first page
           $link_rel_next_page = "$pager_prefix/1";
@@ -858,19 +863,31 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
           }
         }
         if (isset($link_rel_prev_page)) {
+          if ($enable_clean_url) {
+            $href = $link_rel_prev_page ? "$base_url/$current_url/$link_rel_prev_page" : "$base_url/$current_url";
+          }
+          else {
+            $href = $link_rel_prev_page ? "$base_url/$current_url?$link_rel_prev_page" : "$base_url/$current_url";
+          }
           drupal_add_html_head(array(
             '#attributes' => array(
               'rel'  => 'prev',
-              'href' => $link_rel_prev_page ? "$base_url/$current_url/$link_rel_prev_page" : "$base_url/$current_url",
+              'href' => $href,
             ),
             '#tag' => 'link'
           ), 'smart_paging_link_rel_prev');
         }
         if (isset($link_rel_next_page)) {
+          if ($enable_clean_url) {
+            $href = $link_rel_next_page ? "$base_url/$current_url/$link_rel_next_page" : "$base_url/$current_url";
+          }
+          else {
+            $href = $link_rel_next_page ? "$base_url/$current_url?$link_rel_next_page" : "$base_url/$current_url";
+          }
           drupal_add_html_head(array(
             '#attributes' => array(
               'rel'  => 'next',
-              'href' => $link_rel_next_page ? "$base_url/$current_url/$link_rel_next_page" : "$base_url/$current_url",
+              'href' => $href,
             ),
             '#tag' => 'link'
           ), 'smart_paging_link_rel_next');
