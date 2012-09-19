@@ -842,24 +842,24 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
         }
         if ($current_page == 0) {
           // We are on first page
-          $link_rel_next_page = "$pager_prefix/1";
+          $link_rel_next_page = $enable_clean_url ? "$pager_prefix/1" : "$pager_prefix%2C1";
         }
         else if ($current_page == $total_page_offset) {
           // We are on last page
           $link_rel_prev_page = $total_page_offset - 1;
           if ($link_rel_prev_page) {
-            $link_rel_prev_page = "$pager_prefix/$link_rel_prev_page";
+            $link_rel_prev_page = $enable_clean_url ? "$pager_prefix/$link_rel_prev_page" : "$pager_prefix%2C$link_rel_prev_page";
           }
         }
         else {
           // We are on middle page
           $link_rel_next_page = $current_page + 1;
           if ($link_rel_next_page) {
-            $link_rel_next_page = "$pager_prefix/$link_rel_next_page";
+            $link_rel_next_page = $enable_clean_url ? "$pager_prefix/$link_rel_next_page" : "$pager_prefix%2C$link_rel_next_page";
           }
           $link_rel_prev_page = $current_page - 1;
           if ($link_rel_prev_page) {
-            $link_rel_prev_page = "$pager_prefix/$link_rel_prev_page";
+            $link_rel_prev_page = $enable_clean_url ? "$pager_prefix/$link_rel_prev_page" : "$pager_prefix%2C$link_rel_prev_page";
           }
         }
         if (isset($link_rel_prev_page)) {
