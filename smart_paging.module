@@ -92,7 +92,7 @@ function smart_paging_form_alter(&$form, &$form_state, $form_id) {
       );
       $form['fields']['smart_paging']['#attributes']['class'][] = 'field-formatter-settings-editing';
     }
-    elseif (isset($form['#entity_type']) && $form['#entity_type'] != 'comment') {
+    elseif (isset($form['#entity_type']) && in_array($form['#entity_type'] , smart_paging_entities())) {
       $form['fields']['smart_paging']['#region_callback'] = 'field_ui_display_overview_row_region';
       $form['fields']['smart_paging']['settings_summary'] = array(
         '#markup' => '<div class="field-formatter-summary">' . smart_paging_field_formatter_settings_summary($form, $summary) . '</div>',
@@ -1297,6 +1297,18 @@ function smart_paging_preprocess_page(&$variables) {
 }
 
 /**
+ * Implements hook_paging_wysiwyg_include_directory().
+ */
+function smart_paging_wysiwyg_include_directory($type) {
+  switch ($type) {
+    case 'plugins':
+      // You can just return $type, if you place your Wysiwyg plugins into a
+      // sub-directory named 'plugins'.
+      return 'plugins/wysiwyg';
+  }
+}
+
+/**
  * Implements hook_help().
  */
 function smart_paging_help($path, $arg) {
@@ -1519,13 +1531,13 @@ function smart_paging_get_url_fragment($url = NULL) {
 }
 
 /**
- * Implements hook_paging_wysiwyg_include_directory().
+ * Smart Paging supported entities.
  */
-function smart_paging_wysiwyg_include_directory($type) {
-  switch ($type) {
-    case 'plugins':
-      // You can just return $type, if you place your Wysiwyg plugins into a
-      // sub-directory named 'plugins'.
-      return 'plugins/wysiwyg';
-  }
+function smart_paging_entities() {
+  $entities = array(
+    'node',
+    'user',
+    'taxonomy_term',
+  );
+  return $entities;
 }
