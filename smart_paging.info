@@ -4,6 +4,7 @@ description = Provides long Drupal content splitting up into sub pages.
 core = 7.x
 files[] = smart_paging.install
 files[] = smart_paging.module
+files[] = smart_paging.tokens.inc
 files[] = includes/smart_paging.admin.inc
 dependencies[] = filter
 configure = admin/config/content/smart_paging
