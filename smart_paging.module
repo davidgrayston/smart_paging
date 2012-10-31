@@ -611,12 +611,42 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
             $language    = isset($build[$field_name]['#language']) ? $build[$field_name]['#language'] : 'und';
             if ($display_settings['settings']['smart_paging_settings_context'] == 'content_type') {
               // Use Smart Paging settings stored at Manage Display
-              $smart_paging_method = $display_settings['settings']['smart_paging_method'];
-              $placeholder = $display_settings['settings']['smart_paging_pagebreak'];
-              $display_suffix = $display_settings['settings']['smart_paging_title_display_suffix'];
-              $suffix    = $display_settings['settings']['smart_paging_title_suffix'];
-              $max_char  = $display_settings['settings']['smart_paging_character_count'];
-              $max_words = $display_settings['settings']['smart_paging_word_count'];
+              if (isset($display_settings['settings']['smart_paging_method'])) {
+                $smart_paging_method =  $display_settings['settings']['smart_paging_method'];
+              }
+              else {
+                $smart_paging_method =  variable_get('smart_paging_method', SMART_PAGING_PLACEHOLDER_METHOD);
+              }
+              if (isset($display_settings['settings']['smart_paging_pagebreak'])) {
+                $placeholder = $display_settings['settings']['smart_paging_pagebreak'];
+              }
+              else {
+                $placeholder = variable_get('smart_paging_pagebreak', '<!--pagebreak-->');
+              }
+              if (isset($display_settings['settings']['smart_paging_title_display_suffix'])) {
+                $display_suffix = $display_settings['settings']['smart_paging_title_display_suffix'];
+              }
+              else {
+                $display_suffix = variable_get('smart_paging_title_display_suffix', TRUE);
+              }
+              if (isset($display_settings['settings']['smart_paging_title_suffix'])) {
+                $suffix = $display_settings['settings']['smart_paging_title_suffix'];
+              }
+              else {
+                $suffix = variable_get('smart_paging_title_suffix', t(': Page '));
+              }
+              if (isset($display_settings['settings']['smart_paging_character_count'])) {
+                $max_char = $display_settings['settings']['smart_paging_character_count'];
+              }
+              else {
+                $max_char = variable_get('smart_paging_character_count', SMART_PAGING_MAX_CHAR_LIMIT);
+              }
+              if (isset($display_settings['settings']['smart_paging_word_count'])) {
+                $max_words = $display_settings['settings']['smart_paging_word_count'];
+              }
+              else {
+                $max_words = variable_get('smart_paging_word_count', SMART_PAGING_MAX_WORD_LIMIT);
+              }
             }
             else {
               // Retrieve the stored Smart Paging settings for this content
@@ -1130,7 +1160,7 @@ function smart_paging_field_formatter_settings_form($build, $summary = NULL) {
   }
   $form['smart_paging_settings_context'] = array(
     '#type'          => 'radios',
-    '#default_value' => $display['settings']['smart_paging_settings_context'],
+    '#default_value' => isset($display['settings']['smart_paging_settings_context']) ? $display['settings']['smart_paging_settings_context'] : 'content_type',
     '#options'       => array(
       'content'      => t('Show Smart Paging settings during content editing of this content type'),
       'content_type' => t('Use the settings below for every content of this content type'),
@@ -1144,14 +1174,14 @@ function smart_paging_field_formatter_settings_form($build, $summary = NULL) {
   $form['smart_paging_method'] = array(
     '#type'          => 'select', 
     '#title'         => t('Page break method'),
-    '#default_value' => $display['settings']['smart_paging_method'],
+    '#default_value' => isset($display['settings']['smart_paging_method']) ? $display['settings']['smart_paging_method'] : variable_get('smart_paging_method', SMART_PAGING_PLACEHOLDER_METHOD),
     '#options'       => _smart_paging_method_list(),
     '#states'        => $states,
   );
   $form['smart_paging_pagebreak'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Page break placeholder'),
-    '#default_value' => $display['settings']['smart_paging_pagebreak'],
+    '#default_value' => isset($display['settings']['smart_paging_pagebreak']) ? $display['settings']['smart_paging_pagebreak'] : variable_get('smart_paging_pagebreak', '<!--pagebreak-->'),
     '#description'   => t('HTML comment or valid HTML tag with unique identifier, eg. &lt;hr class="pagebreak" /&gt; or &lt;!--pagebreak--&gt.'),
     '#size'          => 30,
     '#states'        => $states,
@@ -1160,7 +1190,7 @@ function smart_paging_field_formatter_settings_form($build, $summary = NULL) {
     '#type'          => 'textfield',
     '#title'         => t('Character limit'),
     '#description'   => t('Number of characters that will be shown for each page when "Automatic page break by character limit" is selected.'),
-    '#default_value' => $display['settings']['smart_paging_character_count'],
+    '#default_value' => isset($display['settings']['smart_paging_character_count']) ? $display['settings']['smart_paging_character_count'] : variable_get('smart_paging_character_count', SMART_PAGING_MAX_CHAR_LIMIT),
     '#size'          => 30,
     '#states'        => $states,
   );
@@ -1168,7 +1198,7 @@ function smart_paging_field_formatter_settings_form($build, $summary = NULL) {
     '#type'          => 'textfield',
     '#title'         => t('Word limit'),
     '#description'   => t('Number of words that will be shown for each page when "Automatic page break by word limit" is selected.'),
-    '#default_value' => $display['settings']['smart_paging_word_count'],
+    '#default_value' => isset($display['settings']['smart_paging_word_count']) ? $display['settings']['smart_paging_word_count'] : variable_get('smart_paging_word_count', SMART_PAGING_MAX_WORD_LIMIT),
     '#size'          => 30,
     '#states'        => $states,
   );
@@ -1176,7 +1206,7 @@ function smart_paging_field_formatter_settings_form($build, $summary = NULL) {
     '#type'          => 'checkbox',
     '#title'         => t('Display content title suffix'),
     '#description'   => t("Unchecking this option will stop display of content title suffix on web pages"),
-    '#default_value' => $display['settings']['smart_paging_title_display_suffix'],
+    '#default_value' => isset($display['settings']['smart_paging_title_display_suffix']) ? $display['settings']['smart_paging_title_display_suffix'] : variable_get('smart_paging_title_display_suffix', TRUE),
     '#states'        => $states,
   );
   $states_title_suffix = $states;
@@ -1187,7 +1217,7 @@ function smart_paging_field_formatter_settings_form($build, $summary = NULL) {
     '#type'          => 'textfield',
     '#title'         => t('Content title suffix'),
     '#description'   => t("Text that will appear next to content's sub pages title (default is %suffix), eg. Title%suffix 2, Title%suffix 3 and so on...", array('%suffix' => t(': Page '))),
-    '#default_value' => $display['settings']['smart_paging_title_suffix'],
+    '#default_value' => isset($display['settings']['smart_paging_title_suffix']) ? $display['settings']['smart_paging_title_suffix'] : variable_get('smart_paging_title_suffix', ': Page '),
     '#size'          => 30,
     '#states'        => $states_title_suffix,
   );
@@ -1230,15 +1260,39 @@ function smart_paging_field_formatter_settings_summary($build, $summary = NULL) 
   $summary = array();
   $methods = _smart_paging_method_list();
   if (isset($display['settings']['smart_paging_settings_context']) && $display['settings']['smart_paging_settings_context'] == 'content_type') {
-    $summary[] = $methods[$display['settings']['smart_paging_method']];
-    $summary[] = t('Page break placeholder') . ': <em>' . check_plain($display['settings']['smart_paging_pagebreak']) . '</em>';
-    $summary[] = t('Character limit') . ': <em>' . check_plain($display['settings']['smart_paging_character_count']) . '</em>';
-    $summary[] = t('Word limit') . ': <em>' . check_plain($display['settings']['smart_paging_word_count']) . '</em>';
-    if ($display['settings']['smart_paging_title_display_suffix']) {
+    if (isset($display['settings']['smart_paging_method'])) {
+      $summary[] = $methods[$display['settings']['smart_paging_method']];
+    }
+    else {
+      $summary[] = $methods[variable_get('smart_paging_method', SMART_PAGING_PLACEHOLDER_METHOD)];
+    }
+    if (isset($display['settings']['smart_paging_pagebreak'])) {
+      $summary[] = t('Page break placeholder') . ': <em>' . check_plain($display['settings']['smart_paging_pagebreak']) . '</em>';
+    }
+    else {
+      $summary[] = t('Page break placeholder') . ': <em>' . variable_get('smart_paging_pagebreak', '<!--pagebreak-->') . '</em>';
+    }
+    if (isset($display['settings']['smart_paging_character_count'])) {
+      $summary[] = t('Character limit') . ': <em>' . check_plain($display['settings']['smart_paging_character_count']) . '</em>';
+    }
+    else {
+      $summary[] = t('Character limit') . ': <em>' . variable_get('smart_paging_character_count', SMART_PAGING_MAX_CHAR_LIMIT) . '</em>';
+    }
+    if (isset($display['settings']['smart_paging_word_count'])) {
+      $summary[] = t('Word limit') . ': <em>' . check_plain($display['settings']['smart_paging_word_count']) . '</em>';
+    }
+    else {
+      $summary[] = t('Word limit') . ': <em>' . variable_get('smart_paging_word_count', SMART_PAGING_MAX_WORD_LIMIT) . '</em>';
+    }
+    if (isset($display['settings']['smart_paging_title_display_suffix']) && $display['settings']['smart_paging_title_display_suffix']) {
       $summary[] = t('Display title suffix.');
       $summary[] = t('Content title suffix: ') . ': <em>' . check_plain($display['settings']['smart_paging_title_suffix']) . '</em>';
     }
-    else {
+    elseif (!isset($display['settings']['smart_paging_title_display_suffix'])) {
+      $summary[] = t('Display title suffix.');
+      $summary[] = t('Content title suffix: ') . ': <em>' . variable_get('smart_paging_title_suffix', ': Page ') . '</em>';
+    }
+    elseif (isset($display['settings']['smart_paging_title_display_suffix']) && !$display['settings']['smart_paging_title_display_suffix']) {
       $summary[] = t('Do not display title suffix.');
     }
   }
