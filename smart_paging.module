@@ -142,7 +142,7 @@ function smart_paging_form_alter(&$form, &$form_state, $form_id) {
               if (is_numeric($delta)) {
                 global $user;
                 $formats = filter_formats($user);
-                if (isset($properties['#format'])) {
+                if (array_key_exists('#format', $properties)) {
                   if (is_null($properties['#format'])) {
                     $format = $formats[filter_default_format($user)];
                     $filter = _filter_tips($format->format, FALSE);
