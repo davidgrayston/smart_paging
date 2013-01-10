@@ -266,8 +266,8 @@ function smart_paging_form_alter(&$form, &$form_state, $form_id) {
           '#states'        => array(
             'visible' => array(
               ':input[name="smart_paging_method"]' => array(
-                'value'   => (string) SMART_PAGING_CHARACTER_LIMIT_METHOD,
                 'enabled' => TRUE,
+                'value'   => (string) SMART_PAGING_CHARACTER_LIMIT_METHOD,
               ),
             ),
           ),
@@ -281,8 +281,8 @@ function smart_paging_form_alter(&$form, &$form_state, $form_id) {
           '#states'        => array(
             'visible' => array(
               ':input[name="smart_paging_method"]' => array(
-                'value'   => (string) SMART_PAGING_WORD_LIMIT_METHOD,
                 'enabled' => TRUE,
+                'value'   => (string) SMART_PAGING_WORD_LIMIT_METHOD,
               ),
             ),
           ),
