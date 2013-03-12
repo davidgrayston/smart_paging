@@ -687,6 +687,10 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
             if (isset($query_parameters['nopaging'])) {
               // Prevent this page from being cached
               $GLOBALS['conf']['cache'] = FALSE;
+              // If set, use "Convert line breaks into HTML" filter
+              if (isset($use_autop)) {
+                $build[$field_name][$delta]['#markup'] = _filter_autop($markup_content);
+              }
               return;
             }
             if ($smart_paging_method == SMART_PAGING_NO_METHOD) {
