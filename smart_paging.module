@@ -855,15 +855,21 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
           preg_match_all('#<!--smartpagingmeta [[:punct:][:alnum:][:space:]]*-->#', $sub_content, $matched_tags);
           if (!empty($matched_tags[0])) {
             $smart_paging_seo = preg_replace('#<!--smartpagingmeta |<!--smartpagingurl [[:punct:][:alnum:][:space:]]*-->|-->#', '', $matched_tags[0][0]);
-            drupal_add_html_head(array(
-              '#attributes' => array(
-                'name'		=> 'Smart_Paging',
-                'content' => $smart_paging_seo,
-              ),
-              '#tag' => 'meta'
-            ), 'smart_paging_seo');
-            // Call this function to register the additional html head
-            drupal_get_html_head();
+            if (!module_exists('metatag')) {
+              drupal_add_html_head(array(
+                '#attributes' => array(
+                  'name'		=> 'Smart_Paging',
+                  'content' => $smart_paging_seo,
+                ),
+                '#tag' => 'meta'
+              ), 'smart_paging_seo');
+              // Call this function to register the additional html head
+              drupal_get_html_head();
+            }
+            else {
+              $output = &drupal_static('smart_paging');
+              $output = json_decode($smart_paging_seo, TRUE);
+            }
           }
           // Add smart_paging_on as indicator to hook_html_head_alter() that
           // Smart Paging is applied to this page
@@ -1420,6 +1426,39 @@ function smart_paging_wysiwyg_include_directory($type) {
       // You can just return $type, if you place your Wysiwyg plugins into a
       // sub-directory named 'plugins'.
       return 'plugins/wysiwyg';
+  }
+}
+
+/**
+ * Implements hook_metatags_view_alter().
+ */
+function smart_paging_metatag_metatags_view_alter(&$output, $instance) {
+  // Load metatags set for this page.
+  $page_metatags = drupal_static('smart_paging');
+
+  if (!empty($page_metatags)) {
+    $metatags = array();
+    $output_metatags = array();
+    $options['instance'] = $instance;
+    $node = menu_get_object();
+    // Rearrange the array so that we can use metatag module classes.
+    foreach ($page_metatags as $metatag => $value) {
+      if (isset($value) && !empty($value)) {
+        $target_tag = explode('_', $metatag);
+        if (isset($target_tag[0]) && isset($target_tag[1]) && isset($target_tag[2]) && isset($target_tag[3])) {
+          $metatags[$target_tag[2]] = array('value' => token_replace($value, array('node' => $node)));
+        }
+      }
+    }
+    // Create objects for each metatag so that we get all required information.
+    foreach ($metatags as $metatag => $data) {
+      if ($metatag_instance = metatag_get_instance($metatag, $data)) {
+        $output_metatags[$metatag] = $metatag_instance->getElement($options);
+      }
+    }
+
+    // Merge with metatags provided by other modules.
+    $output = array_merge($output, $output_metatags);
   }
 }
 
