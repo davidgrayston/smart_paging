@@ -788,16 +788,10 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
                 }
               }
             }
-            // Remove all line break/new line near the closing tag. Eg. Change from <[html tag]/>\n\r<[html tag]> to <[html tag]/><[html tag]>
-            preg_match_all('#<[A-Za-z/ ]+>#', $markup_content, $matched_tags);
-            foreach ($matched_tags[0] as $matched_tag) {
-              $matched_tag_regex = preg_quote($matched_tag, '#');
-              $markup_content = preg_replace('#' . $matched_tag_regex . '[\n\r]*<#', "$matched_tag<", $markup_content);
-            }
             do {
               // Look for consecutive placeholder and closing tag. Eg. <!--pagebreak--></p>
               $placeholder_regex = preg_quote($placeholder, '#');
-              preg_match_all("#($placeholder_regex)([ \t]*)(</[a-zA-Z]+>)#", $markup_content, $match);
+              preg_match_all("#($placeholder_regex)([ \t\r\n]*)(</[a-zA-Z]+>)#", $markup_content, $match);
               if (isset($match[1][0]) && isset($match[3][0])) {
                 // Move the placeholder to the end of closing tag. From the above example </p><!--pagebreak-->
                 $match_regex = preg_quote($match[1][0] . (isset($match[2][0]) ? $match[2][0] : '') . $match[3][0], '#');
