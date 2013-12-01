@@ -685,8 +685,30 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
             // Default this to 'no method' if it's being called as a full page
             $query_parameters = drupal_get_query_parameters();
             if (isset($query_parameters['nopaging'])) {
-              // Prevent this page from being cached
-              $GLOBALS['conf']['cache'] = FALSE;
+              // @TODO: Somewhat duplicated from below pagination code. Refactor candidate.
+              $get = drupal_get_query_parameters();
+              // Do we want nopaging as canonical instead of current page?
+              if (variable_get('smart_paging_use_nopaging_canonical', FALSE)) {
+                $get['nopaging'] = 1;
+              }
+              // Build url representation of current page. Using an absolute url allows outbound 
+              // url hooks to modify the domain if necessary (domain module).
+              $link_current_page = url($_GET['q'], array(
+                'absolute' => TRUE,
+                'query'    => $get,
+              ));
+              // By default add a canonical head element here. We will clean up any duplicates 
+              // in the hook.
+              drupal_add_html_head(array(
+                '#attributes' => array(
+                  'rel'  => 'canonical',
+                  'href' => $link_current_page,
+                ),
+                '#tag' => 'link',
+                '#attached' => array(
+                  'drupal_add_http_header' => array(array('Link', '<' . $link_current_page . '>; rel="canonical"', 1)),
+                ),
+              ), 'smart_paging_link_canonical');
               // If set, use "Convert line breaks into HTML" filter
               if (isset($use_autop)) {
                 $build[$field_name][$delta]['#markup'] = _filter_autop($markup_content);
@@ -871,17 +893,6 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
               $output = json_decode($smart_paging_seo, TRUE);
             }
           }
-          // Add smart_paging_on as indicator to hook_html_head_alter() that
-          // Smart Paging is applied to this page
-          drupal_add_html_head(array(
-            '#attributes' => array(
-              'name'		=> 'Smart_Paging',
-              'content' => 'on',
-            ),
-            '#tag' => 'meta'
-          ), 'smart_paging_on');
-          // Call this function to register the additional html head
-          drupal_get_html_head();
         }
       }
     }
@@ -906,16 +917,50 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
         drupal_add_js(array('smart_paging' => $pager_details), 'setting');
       }
 
+      // Set up pager arguments.
+      $total_page_offset = $total_page - 1;
+      if ($enable_clean_url) {
+        $pager_prefix = $pager_details['path_prefix'] . '/' . $pager_details['first_element'];
+      }
+      else {
+        $pager_prefix = 'page=' . $pager_details['first_element'];
+      }
+      $get = drupal_get_query_parameters();
+      $q   = $_GET['q'];
+      // Do we want nopaging as canonical instead of current page?
+      if (variable_get('smart_paging_use_nopaging_canonical', FALSE)) {
+        $get['nopaging'] = 1;
+      }
+      elseif ($current_page != 0) {
+        // No. Make current paginated page canonical.
+        if ($enable_clean_url) {
+          $q .= "/$pager_prefix/$current_page";
+        }
+        else {
+          $get[$pager_prefix] = $current_page;
+        }
+      }
+      // Build url representation of current page. Using an absolute url allows outbound 
+      // url hooks to modify the domain if necessary (domain module).
+      $link_current_page = url($_GET['q'], array(
+        'absolute' => TRUE,
+        'query'    => $get,
+      ));
+      // By default add a canonical head element here. We will clean up any duplicates in the hook.
+      drupal_add_html_head(array(
+        '#attributes' => array(
+          'rel'  => 'canonical',
+          'href' => $link_current_page,
+        ),
+        '#tag' => 'link',
+        '#attached' => array(
+          'drupal_add_http_header' => array(array('Link', '<' . $link_current_page . '>; rel="canonical"', 1)),
+        ),
+      ), 'smart_paging_link_canonical');
+
       if (variable_get('smart_paging_use_link_rel', TRUE)) {
         // Pagination with rel="next" and rel="prev"
         // Ref: http://googlewebmastercentral.blogspot.co.uk/2011/09/pagination-with-relnext-and-relprev.html
-        $total_page_offset = $total_page - 1;
-        if ($enable_clean_url) {
-          $pager_prefix = $pager_details['path_prefix'] . '/' . $pager_details['first_element'];
-        }
-        else {
-          $pager_prefix = 'page=' . $pager_details['first_element'];
-        }
         if ($current_page == 0) {
           // We are on first page
           $link_rel_next_page = $enable_clean_url ? "$pager_prefix/1" : "$pager_prefix%2C1";
@@ -1016,32 +1061,45 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
  */
 function smart_paging_html_head_alter(&$head_elements) {
   global $base_root;
-  if (isset($head_elements['smart_paging_on'])) {
-    // Set the single page view URL as canonical.
-    unset($head_elements['smart_paging_on']);
-    $url_components = parse_url($base_root);
-    $args = $_GET;
-    unset($args['q']);
-    $args['nopaging'] = 1;
-    $args = http_build_query($args);
-    $url_path = $url_components['host'] . '/' . request_path();
-    $canonical_link = $url_components['scheme'] . "://$url_path?$args";
+  if (isset($head_elements['smart_paging_link_canonical'])) {
+    // Process the canonical.
+    $smart_paging_canonical['smart_paging_link_canonical'] = $head_elements['smart_paging_link_canonical'];
+    unset($head_elements['smart_paging_link_canonical']);
+	   $current_alias = function_exists('path_alias_xt_get_path_alias') ? path_alias_xt_get_path_alias($_GET['q']) : drupal_get_path_alias($_GET['q']);
+    $current_absolute_alias = url($_GET['q'], array('absolute' => TRUE));
+    $override_canonical = array();
+    // Collect other existing canonical element(s)    
     foreach ($head_elements as $head_element_key => $head_element) {
-      if (isset($head_element['#tag']) && $head_element['#tag'] == 'link' && isset($head_element['#attributes']) && $head_element['#attributes']['rel'] == 'canonical') {
-        $head_elements[$head_element_key]['#attributes']['href'] = $canonical_link;
-        $canonical_link = '';
-        break;
+      $canonical_tag = isset($head_element['#tag']) && $head_element['#tag'] == 'link' && isset($head_element['#attributes']) && $head_element['#attributes']['rel'] == 'canonical';
+      $canonical_metatag = $head_element_key == 'metatag_canonical';
+      // Drupal standard canonical link style plus metatag edge case - does not overwrite standard drupal
+      if (strpos($head_element_key, 'drupal_add_html_head_link:canonical') === 0 || $canonical_tag || $canonical_metatag) {
+        // If other canonicals are different from the base url (page1), collect them.
+        // Check absolute url alias for page as well, this should allow Domain Source, or other absolute, provided canonical to be authoratative.
+        if (($canonical_tag && $head_element['#attributes']['href'] != $current_alias && $head_element['#attributes']['href'] != $current_absolute_alias) || ($canonical_metatag && $head_element['#value'] != $current_alias && $head_element['#value'] != $current_absolute_alias)) {
+          $override_canonical[$head_element_key] = $head_element;
+        }
+        unset($head_elements[$head_element_key]);
       }
     }
-    if (!empty($canonical_link)) {
-      $head_elements['canonical'] = array(
-        '#type' => 'html_tag',    
-        '#tag'  => 'link',    
-        '#attributes' => array(
-          'rel'  => 'canonical',
-          'href' => $canonical_link,
-        ), 
-      );
+    // If there are existing canonicals that don't match the base url, use them
+    // We are erring on the side that if another module is specifying a canonical different from this page's root (page1) then we shouldn't change it.
+    if (!empty($override_canonical)) {
+      $head_elements = array_merge($head_elements, $override_canonical);
+    }
+    else {
+      // Otherwise use the smart_paging canonical
+      $head_elements = array_merge($head_elements, $smart_paging_canonical);
+      // Remove any other canonicals already in the http response
+      // Here we are assuming that if the canonicals in the <head> element are ok to override, so is the http header
+      $http_header_link = drupal_get_http_header('Link');
+      $http_header_link = explode(',', $http_header_link);
+      foreach ($http_header_link as $key => $link) {
+        if (preg_match('#rel="canonical"#i', $link)) {
+          unset($http_header_link[$key]);
+        }
+      }
+      drupal_add_http_header('Link', implode(',', $http_header_link));
     }
   }
   if (isset($head_elements['smart_paging_seo'])) {
