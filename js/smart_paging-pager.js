@@ -40,7 +40,7 @@
           $('.smart-paging-pager .pager-previous').after(js_box);
         }
         $('.smart-paging-pager-box').bind('change', function () {
-          window.location = $(this).attr('value');
+          window.location = $(this).val();
         });
       }
     }
