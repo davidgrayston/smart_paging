@@ -507,7 +507,9 @@ function _smart_paging_href_replace($match) {
   $sub_page = $args[$arg_count - 1];
   if ($arg_count > 2 && is_numeric($sub_page) && is_numeric($page)) {
     if ($args[$arg_count - 2] == variable_get('smart_paging_path_prefix', 'page')) {
-      parse_str($path_info['query'], $query_array);
+      if (isset($path_info['query'])) {
+        parse_str($path_info['query'], $query_array);
+      }
       $query_array['page'] = "$sub_page,$page";
       $path_info['query'] = http_build_query($query_array);
       $alias = arg(NULL, $path_info['path']);
