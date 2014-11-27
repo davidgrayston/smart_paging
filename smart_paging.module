@@ -405,10 +405,12 @@ function _smart_paging_settings_submit($form, &$form_state) {
     }
   }
   elseif (isset($form_state['values']['smart_paging_use_default']) && $form_state['values']['smart_paging_use_default']) {
-    db_delete('smart_paging')
-      ->condition('entity_id', $form_state['storage']['smart_paging_entity_id'])
-      ->condition('entity_type', $form_state['storage']['smart_paging_entity_type'])
-      ->execute();
+    if (isset($form_state['storage']['smart_paging_entity_id']) && isset($form_state['storage']['smart_paging_entity_type'])) {
+      db_delete('smart_paging')
+        ->condition('entity_id', $form_state['storage']['smart_paging_entity_id'])
+        ->condition('entity_type', $form_state['storage']['smart_paging_entity_type'])
+        ->execute();
+    }
   }
 }
 
