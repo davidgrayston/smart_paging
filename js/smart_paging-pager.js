@@ -8,12 +8,19 @@
         var current_page  = settings.smart_paging.current_page;
         var first_element = settings.smart_paging.first_element;
         var path_prefix   = settings.smart_paging.path_prefix;
-        var first_page = $('.smart-paging-pager .pager-first a', context).attr('href').split('?')[0];
-        var last_page  = $('.smart-paging-pager .pager-last a', context).attr('href').split('?')[0];
+        var first_page = $('.smart-paging-pager .pager-first a', context).attr('href');
+        var last_page  = $('.smart-paging-pager .pager-last a', context).attr('href');
         var base_url   = settings.smart_paging.base_url;
         var current_url = settings.smart_paging.current_url;
-        var total_page = last_page == undefined ? current_page : last_page.replace(/^\/.*\//i, '');
+        var total_page;
         var js_box     = '<li><select class="smart-paging-pager-box">';
+        if (first_page != undefined) {
+          first_page = first_page.split('?')[0];
+        }
+        if (last_page != undefined) {
+          last_page = last_page.split('?')[0];
+        }
+        total_page = last_page == undefined ? current_page : last_page.replace(/^\/.*\//i, '');
         for (var index in custom_url_page) {
           total_page = total_page.replace(('#' + custom_url_page[index]), '');
         }
