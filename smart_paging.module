@@ -723,30 +723,33 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
             // Default this to 'no method' if it's being called as a full page
             $query_parameters = drupal_get_query_parameters();
             if (isset($query_parameters['nopaging'])) {
-              // @TODO: Somewhat duplicated from below pagination code. Refactor candidate.
-              $get = drupal_get_query_parameters();
-              // Do we want nopaging as canonical instead of current page?
-              if (variable_get('smart_paging_use_nopaging_canonical', FALSE)) {
-                $get['nopaging'] = 1;
+              // Add canonical link if configured to do so.
+              if (variable_get('smart_paging_use_link_canonical', TRUE)) {
+                // @TODO: Somewhat duplicated from below pagination code. Refactor candidate.
+                $get = drupal_get_query_parameters();
+                // Do we want nopaging as canonical instead of current page?
+                if (variable_get('smart_paging_use_nopaging_canonical', FALSE)) {
+                  $get['nopaging'] = 1;
+                }
+                // Build url representation of current page. Using an absolute url allows outbound 
+                // url hooks to modify the domain if necessary (domain module).
+                $link_current_page = url($_GET['q'], array(
+                  'absolute' => TRUE,
+                  'query'    => $get,
+                ));
+                // By default add a canonical head element here. We will clean up any duplicates 
+                // in the hook.
+                drupal_add_html_head(array(
+                  '#attributes' => array(
+                    'rel'  => 'canonical',
+                    'href' => $link_current_page,
+                  ),
+                  '#tag' => 'link',
+                  '#attached' => array(
+                    'drupal_add_http_header' => array(array('Link', '<' . $link_current_page . '>; rel="canonical"', 1)),
+                  ),
+                ), 'smart_paging_link_canonical');
               }
-              // Build url representation of current page. Using an absolute url allows outbound 
-              // url hooks to modify the domain if necessary (domain module).
-              $link_current_page = url($_GET['q'], array(
-                'absolute' => TRUE,
-                'query'    => $get,
-              ));
-              // By default add a canonical head element here. We will clean up any duplicates 
-              // in the hook.
-              drupal_add_html_head(array(
-                '#attributes' => array(
-                  'rel'  => 'canonical',
-                  'href' => $link_current_page,
-                ),
-                '#tag' => 'link',
-                '#attached' => array(
-                  'drupal_add_http_header' => array(array('Link', '<' . $link_current_page . '>; rel="canonical"', 1)),
-                ),
-              ), 'smart_paging_link_canonical');
               // If set, use "Convert line breaks into HTML" filter
               if (isset($use_autop)) {
                 $build[$field_name][$delta]['#markup'] = _filter_autop($markup_content);
@@ -972,23 +975,26 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
           $get[$pager_prefix] = $current_page;
         }
       }
-      // Build url representation of current page. Using an absolute url allows outbound 
-      // url hooks to modify the domain if necessary (domain module).
-      $link_current_page = url($_GET['q'], array(
-        'absolute' => TRUE,
-        'query'    => $get,
-      ));
-      // By default add a canonical head element here. We will clean up any duplicates in the hook.
-      drupal_add_html_head(array(
-        '#attributes' => array(
-          'rel'  => 'canonical',
-          'href' => $link_current_page,
-        ),
-        '#tag' => 'link',
-        '#attached' => array(
-          'drupal_add_http_header' => array(array('Link', '<' . $link_current_page . '>; rel="canonical"', 1)),
-        ),
-      ), 'smart_paging_link_canonical');
+      // Add canonical link if configured to do so.
+      if (variable_get('smart_paging_use_link_canonical', TRUE)) {
+        // Build url representation of current page. Using an absolute url allows outbound
+        // url hooks to modify the domain if necessary (domain module).
+        $link_current_page = url($_GET['q'], array(
+          'absolute' => TRUE,
+          'query'    => $get,
+        ));
+        // By default add a canonical head element here. We will clean up any duplicates in the hook.
+        drupal_add_html_head(array(
+          '#attributes' => array(
+            'rel'  => 'canonical',
+            'href' => $link_current_page,
+          ),
+          '#tag' => 'link',
+          '#attached' => array(
+            'drupal_add_http_header' => array(array('Link', '<' . $link_current_page . '>; rel="canonical"', 1)),
+          ),
+        ), 'smart_paging_link_canonical');
+      }
 
       if (variable_get('smart_paging_use_link_rel', TRUE)) {
         // Pagination with rel="next" and rel="prev"
@@ -1525,6 +1531,11 @@ function smart_paging_wysiwyg_include_directory($type) {
 function smart_paging_metatag_metatags_view_alter(&$output, $instance) {
   // Load metatags set for this page.
   $page_metatags = drupal_static('smart_paging');
+
+  // Remove canonical link if not configured to do so.
+  if (!variable_get('smart_paging_use_link_canonical', TRUE)) {
+    unset($page_metatags['meta_name_canonical_content']);
+  }
 
   if (!empty($page_metatags)) {
     $metatags = array();
