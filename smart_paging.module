@@ -731,13 +731,13 @@ function smart_paging_field_attach_view_alter(&$build, $context) {
                 if (variable_get('smart_paging_use_nopaging_canonical', FALSE)) {
                   $get['nopaging'] = 1;
                 }
-                // Build url representation of current page. Using an absolute url allows outbound 
+                // Build url representation of current page. Using an absolute url allows outbound
                 // url hooks to modify the domain if necessary (domain module).
                 $link_current_page = url($_GET['q'], array(
                   'absolute' => TRUE,
                   'query'    => $get,
                 ));
-                // By default add a canonical head element here. We will clean up any duplicates 
+                // By default add a canonical head element here. We will clean up any duplicates
                 // in the hook.
                 drupal_add_html_head(array(
                   '#attributes' => array(
